@@ -13,7 +13,7 @@ pipeline {
     stages {
         stage('Git Checkout') {
             steps {
-                git branch: 'main', credentialsId: 'git-cred', url: 'https://github.com/abrahimcse/Boardgame.git'
+                git branch: 'main', credentialsId: 'git-cred', url: 'https://github.com/brihaspatitechinfo/Boardgame.git'
             }
         }
 
@@ -100,8 +100,8 @@ pipeline {
             steps {
                 withKubeConfig(
                     credentialsId: 'k8-cred',
-                    serverUrl: 'https://172.31.40.100:6443',
-                    clusterName: 'kubernetes',
+                    serverUrl: 'https://172.19.192.1:6443',
+                    clusterName: 'abrahimcse-cluster ',
                     namespace: 'webapps',
                     restrictKubeConfigAccess: false
                 ) {
@@ -114,7 +114,7 @@ pipeline {
             steps {
                 withKubeConfig(
                     credentialsId: 'k8-cred',
-                    serverUrl: 'https://172.31.40.100:6443',
+                    serverUrl: 'https://172.19.192.1:6443',
                     clusterName: 'kubernetes',
                     namespace: 'webapps',
                     restrictKubeConfigAccess: false
@@ -151,9 +151,9 @@ pipeline {
                 emailext(
                     subject: "${jobName} - Build ${buildNumber} - ${pipelineStatus.toUpperCase()}",
                     body: body,
-                    to: 'abrahim.ctech@gmail.com',
-                    from: 'jenkins@example.com',
-                    replyTo: 'jenkins@example.com',
+                    to: 'yashpassion49@gmail.com',
+                    from: 'yashpassion49@gmail.com',
+                    replyTo: 'yashpal@i2k2.com',
                     mimeType: 'text/html',
                     attachmentsPattern: 'trivy-image-report.html'
                 )
