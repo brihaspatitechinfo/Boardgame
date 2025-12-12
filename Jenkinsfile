@@ -108,7 +108,7 @@ pipeline {
             steps {
                 withKubeConfig(
                     credentialsId: 'k8-cred',
-                    serverUrl: 'https://172.19.192.1:6443',
+                    serverUrl: 'https://831C91F4E20D0C01A961EAD5A9C36F65.gr7.ap-southeast-1.eks.amazonaws.com:6443',
                     clusterName: 'abrahimcse-cluster',
                     namespace: 'webapps',
                     restrictKubeConfigAccess: false
@@ -122,7 +122,7 @@ pipeline {
             steps {
                 withKubeConfig(
                     credentialsId: 'k8-cred',
-                    serverUrl: 'https://172.19.192.1:6443',
+                    serverUrl: 'https://831C91F4E20D0C01A961EAD5A9C36F65.gr7.ap-southeast-1.eks.amazonaws.com:6443',
                     clusterName: 'kubernetes',
                     namespace: 'webapps',
                     restrictKubeConfigAccess: false
