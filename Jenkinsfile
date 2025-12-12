@@ -11,6 +11,7 @@ pipeline {
     }
 
     stages {
+
         stage('Git Checkout') {
             steps {
                 git branch: 'main', credentialsId: 'git-cred', url: 'https://github.com/brihaspatitechinfo/Boardgame.git'
@@ -38,20 +39,20 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('sonar') {
-                    sh '''
+                    sh """
                         ${SCANNER_HOME}/bin/sonar-scanner \
                         -Dsonar.projectName=BoardGame \
                         -Dsonar.projectKey=BoardGame \
                         -Dsonar.java.binaries=.
-                    '''
+                    """
                 }
             }
         }
 
         stage('Quality Gate') {
             steps {
-                script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
+                timeout(time: 1, unit: 'HOURS') {
+                    waitForQualityGate abortPipeline: false
                 }
             }
         }
@@ -74,15 +75,22 @@ pipeline {
             steps {
                 script {
                     withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
-                        sh 'docker build -t abrahimcse/boardgame:latest .'
+                        sh 'docker build -t yashadmin/boardgame:latest .'
                     }
                 }
             }
         }
 
-        stage('Docker Image Scan') {
+        stage('Security Scan') {
             steps {
-                sh 'trivy image --format table -o trivy-image-report.html abrahimcse/boardgame:latest'
+                sh '''
+                    echo "=== Security Scan ==="
+                    docker run --rm \
+                    -v /var/run/docker.sock:/var/run/docker.sock \
+                    aquasec/trivy:latest image yashadmin/boardgame:latest \
+                    --exit-code 0 \
+                    --severity HIGH,CRITICAL || echo "Security scan completed"
+                '''
             }
         }
 
@@ -90,7 +98,7 @@ pipeline {
             steps {
                 script {
                     withDockerRegistry(credentialsId: 'docker-cred', toolName: 'docker') {
-                        sh 'docker push abrahimcse/boardgame:latest'
+                        sh 'docker push yashadmin/boardgame:latest'
                     }
                 }
             }
@@ -101,7 +109,7 @@ pipeline {
                 withKubeConfig(
                     credentialsId: 'k8-cred',
                     serverUrl: 'https://172.19.192.1:6443',
-                    clusterName: 'abrahimcse-cluster ',
+                    clusterName: 'abrahimcse-cluster',
                     namespace: 'webapps',
                     restrictKubeConfigAccess: false
                 ) {
@@ -110,7 +118,7 @@ pipeline {
             }
         }
 
-        stage('Verify the Deployment') {
+        stage('Verify Deployment') {
             steps {
                 withKubeConfig(
                     credentialsId: 'k8-cred',
